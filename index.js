@@ -61,7 +61,7 @@ function run(spreadsheet, callback, options) {
 
             if (!options.worksheet ||
                 options.worksheet === title ||
-                Array.isArray(options.worksheet) && options.worksheet.indexOf(title) === -1
+                Array.isArray(options.worksheet) && options.worksheet.indexOf(title) !== -1
             ) {
 
                 count++;
@@ -167,7 +167,7 @@ function run(spreadsheet, callback, options) {
 
                     json[title] = finalList;
                     if (--count == 0)
-                        complete(json, options.beautify, callback);
+                        complete(json, callback);
 
                 });
 
@@ -176,15 +176,14 @@ function run(spreadsheet, callback, options) {
         });
 
         if (count == 0)
-            complete(json, options.beautify, callback);
+            complete(json, callback);
     });
 }
 
-function complete(json, beautify, callback) {
+function complete(json, callback) {
     var keys = Object.keys(json);
     if (keys.length === 1)
         json = json[keys[0]];
 
-    json = JSON.stringify(json, null, beautify ? 4 : null);
     callback(null, json);
 }

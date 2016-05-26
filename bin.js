@@ -34,6 +34,7 @@ program.callback = function(err, json){
     if (err)
         throw err;
 
+    json = JSON.stringify(json, null, program.beautify ? 4 : null);
     fs.writeFile(filename, json, 'utf-8', function(err) {
         if (err)
             throw err;
