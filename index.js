@@ -2,10 +2,6 @@
 
 var GoogleSpreadsheet = require('google-spreadsheet');
 
-var isFunction = function(func) {
-    return !!(func && Object.prototype.toString.call(func) == '[object Function]');
-};
-
 module.exports = function(spreadsheetId, options) {
     var spreadsheet = new GoogleSpreadsheet(spreadsheetId);
     var callback = function(err) {
@@ -46,6 +42,21 @@ module.exports = function(spreadsheetId, options) {
     }
 }
 
+function isFunction(func) {
+    return !!(func && Object.prototype.toString.call(func) == '[object Function]');
+}
+
+function normalize(str) {
+    return str
+      .trim()
+      .toLowerCase()
+      .replace(/[- ]/ig, ' ')
+      .split(' ')
+      .map(function(val, index) {
+          return !index ? val : val.charAt(0).toUpperCase() + val.slice(1);
+      })
+      .join('');
+}
 
 function run(spreadsheet, callback, options) {
 
@@ -57,7 +68,7 @@ function run(spreadsheet, callback, options) {
         var count = 0;
 
         sheet_info.worksheets.forEach(function(worksheet) {
-            var title = worksheet.title.trim().replace(/ |　/g, '_');
+            var title = normalize(worksheet.title);
 
             if (!options.worksheet ||
                 options.worksheet === title ||
@@ -105,14 +116,7 @@ function run(spreadsheet, callback, options) {
                         if (typeof cell.value !== 'string' || cell.value === '')
                             return properties;
 
-                        properties[cell[colProp]] = cell.value
-                            .toLowerCase()
-                            .replace(/[- ]/ig, ' ')
-                            .split(' ')
-                            .map(function(val, index) {
-                                return !index ? val : val.charAt(0).toUpperCase() + val.slice(1);
-                            })
-                            .join('');
+                        properties[cell[colProp]] = normalize(cell.value);
 
                         return properties;
                     }, {});
@@ -145,7 +149,7 @@ function run(spreadsheet, callback, options) {
                             } else if (cell.value === 'FALSE') {
                                 val = false;
                                 hasValues = true;
-                            } else if (cell.value !== '') {
+                            } else if (cell.value !== '' && typeof cell.value !== 'undefined') {
                                 val = cell.value;
                                 hasValues = true;
                             }
