@@ -69,12 +69,10 @@ function run(spreadsheet, callback, options) {
 
         sheet_info.worksheets.forEach(function(worksheet) {
             var title = normalize(worksheet.title);
-
             if (!options.worksheet ||
-                options.worksheet === title ||
-                Array.isArray(options.worksheet) && options.worksheet.indexOf(title) !== -1
+                !Array.isArray(options.worksheet) && normalize(options.worksheet) === title ||
+                Array.isArray(options.worksheet) && options.worksheet.map(normalize).indexOf(title) !== -1
             ) {
-
                 count++;
                 worksheet.getCells(function(err, cells) {
                     if (err)
@@ -152,6 +150,8 @@ function run(spreadsheet, callback, options) {
                             } else if (cell.value !== '' && typeof cell.value !== 'undefined') {
                                 val = cell.value;
                                 hasValues = true;
+                            } else {
+                                return;
                             }
 
                             if (options.listOnly)
